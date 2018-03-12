@@ -6,6 +6,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { ThreeDisplayComponent } from './three-display/three-display.component';
 import { GoDisplayComponent } from './go-display/go-display.component';
+import { AdfComponent } from './adf/adf.component';
 
 
 const appRoutes: Routes = [
@@ -17,7 +18,8 @@ const appRoutes: Routes = [
   declarations: [
     AppComponent,
     ThreeDisplayComponent,
-    GoDisplayComponent
+    GoDisplayComponent,
+    AdfComponent
   ],
   imports: [
     BrowserModule,
