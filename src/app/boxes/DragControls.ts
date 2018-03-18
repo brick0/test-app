@@ -17,7 +17,6 @@ export class DragControls {
   _otherCtrlsState=[]
   constructor(private _camera: any, private _domElement: any,private _otherCtrls:any[],
   ) {
-
     this._otherCtrlsState=_otherCtrls.map(c=>c.enabled)
   }
   addObject(o){
@@ -35,11 +34,10 @@ export class DragControls {
     }
   }
   activate() {
-
     this._domElement.addEventListener('mousemove', this.onDocumentMouseMove, false);
     this._domElement.addEventListener('mousedown', this.onDocumentMouseDown, false);
     this._domElement.addEventListener('mouseup', this.onDocumentMouseCancel, false);
-    this._domElement.addEventListener('mouseleave', this.onDocumentMouseCancel, false);
+    //this._domElement.addEventListener('mouseleave', this.onDocumentMouseCancel, false);
     this._domElement.addEventListener('touchmove', this.onDocumentTouchMove, false);
     this._domElement.addEventListener('touchstart', this.onDocumentTouchStart, false);
     this._domElement.addEventListener('touchend', this.onDocumentTouchEnd, false);
@@ -58,7 +56,7 @@ export class DragControls {
   }
 
   onDocumentMouseMove =(event)=> {
-
+    if(this._objects.length==0){return}
     event.preventDefault();
 
     var rect = this._domElement.getBoundingClientRect();
@@ -88,8 +86,8 @@ export class DragControls {
   }
 
   onDocumentMouseDown =(event)=> {
+    if(this._objects.length==0){return}
     event.preventDefault();
-
     this._raycaster.setFromCamera(this._mouse, this._camera);
 
     var intersects = this._raycaster.intersectObjects(this._objects);
@@ -120,13 +118,13 @@ export class DragControls {
   }
 
   onDocumentMouseCancel =(event)=>{
+    console.log('canceled')
     event.preventDefault();
+    this.restoreOtherState()
     if (this._selected) {
-      this.restoreOtherState()
       this._selected.userData.dragEnd()
       this._selected = null;
       this._offset=new THREE.Vector3()
-
     }
     this._domElement.style.cursor = 'auto';
   }

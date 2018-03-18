@@ -5,7 +5,13 @@ import "three/examples/js/renderers/CSS3DRenderer"
 import "three/examples/js/controls/OrbitControls"
 import { DragControls} from "../boxes/DragControls";
 import * as dat from 'dat.gui'
-import {ThreeDisplay, Rack, RackableDevice, Label, Room, Row, PDU} from "../boxes/boxes"
+import {ThreeDisplay} from "../boxes/box"
+import {Room} from "../boxes/room";
+import {Label} from "../boxes/label";
+import {Row} from "../boxes/row";
+import {Rack} from "../boxes/rack";
+import {RackableDevice} from "../boxes/rackable";
+import {PDU} from "../boxes/pdu";
 
 @Component({
   selector: 'app-three-display',
@@ -31,34 +37,18 @@ export class ThreeDisplayComponent implements  ThreeDisplay {
   toolTips:any[]=[];
   ctxCanvas2D = document.createElement("canvas").getContext("2d");
   constructor() {
-    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
-    this.camera.position.z = 5000;
-    this.room = new Room(this, 0, "a room", null, true)
 
-    let row=new Row(this, 0, "Row 01", null, false)
-    this.room.addDevice(row,new THREE.Vector3(1000,0,0))
-    for (let j = 0; j < 3; j++) {
-      let rack = new Rack(this, 1, 'R' + j);
-      row.addDevice(rack, new THREE.Vector3(j * 1000, 0, 0));
-      for (let i = 1; i < 20; i++) {
-        let server = new RackableDevice(this, 2, "server" + i)
-        rack.addDevice(server, i, i%2==0);
-        server.buildLabels()
-      }
-      let pdu = new PDU(this,4,'PDU R023',null,false)
-      rack.addDevice(pdu,0,false)
-    }
-    let rack = new Rack(this, 1, 'R100' );
-    this.room.addDevice(rack,new THREE.Vector3(1000,0,1000))
-    for (let i = 1; i < 20; i++) {
-        let server = new RackableDevice(this, 2, "server" + i)
-        rack.addDevice(server, i, i%2==0);
-        server.buildLabels()
-      }
 
   }
 
-
+  oldClickables;
+  saveClickables(){
+    this.oldClickables=this.clickable;
+    this.clickable=[]
+  }
+  restoreClickables(){
+    this.clickable=this.oldClickables;
+  }
   createRender(domElement){
     let x= domElement.nativeElement.getBoundingClientRect()
     this.cssRenderer.setSize(x.width, x.height);
@@ -77,7 +67,9 @@ export class ThreeDisplayComponent implements  ThreeDisplay {
     this.toolTipRender.style.top = "0px";
     this.toolTipRender.style.left = "0px";
     this.rendererContainer.nativeElement.appendChild(this.toolTipRender);
-
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
+    this.camera.position.z = 5000;
+    this.camera.position.y = 5000;
 
     let light = new THREE.HemisphereLight(0xffffff, 0x080820, 1);
     this.glScene.add(light);
@@ -92,8 +84,34 @@ export class ThreeDisplayComponent implements  ThreeDisplay {
 
    ngAfterViewInit() {
         this.createRender(this.rendererContainer)
+        this.play();
         this.render();
    }
+    play(){
+    this.room = new Room(this, 0, "a room", null, true)
+
+    /*let row=new Row(this, 0, "Row 01", null, false)
+    this.room.addDevice(row,new THREE.Vector3(1000,0,0))
+    for (let j = 0; j < 3; j++) {
+      let rack = new Rack(this, 1, 'R' + j);
+      row.addDevice(rack, new THREE.Vector3(j * 1000, 0, 0));
+      for (let i = 1; i < 20; i++) {
+        let server = new RackableDevice(this, 2, "server" + i)
+        rack.addDevice(server, i, i%2==0);
+        server.buildLabels()
+      }
+      let pdu = new PDU(this,4,'PDU R023',null,false)
+      rack.addDevice(pdu,0,false)
+    }
+    let rack = new Rack(this, 1, 'R100' );
+    this.room.addDevice(rack,new THREE.Vector3(1000,0,1000))
+    for (let i = 1; i < 20; i++) {
+        let server = new RackableDevice(this, 2, "server" + i)
+        rack.addDevice(server, i, i%2==0);
+        server.buildLabels()
+      }*/
+    this.room.editRoom()
+    }
 
    orbiting=()=>{
     if(this.toolTips.length>0){
@@ -101,6 +119,7 @@ export class ThreeDisplayComponent implements  ThreeDisplay {
     }
     this.render()
    }
+
    renderScheduled=false;
    render=()=> {
       if(!this.renderScheduled){
